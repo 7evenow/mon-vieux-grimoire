@@ -1,7 +1,7 @@
 # mon-vieux-grimoire
-# package a installer 
+## package a installer 
 
-//installer le package npm //
+installer le package npm
 npm install 
 
 installer nodemon pour pouvoir start le server 
@@ -25,7 +25,7 @@ npm install jsonwebtoken
 installer mutler pour la gestion de fichier 
 npm install multer
 
-# Crée un fichier .env
+## Crée un fichier .env
 
 DB_URL=.
 
