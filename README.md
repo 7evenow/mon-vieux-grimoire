@@ -1,11 +1,13 @@
 # mon-vieux-grimoire
 ## package a installer 
 
-installer le package npm
-npm install 
-
-installer nodemon pour pouvoir start le server 
-npm install -g nodemon
+installer le package npm  
+  
+```shell
+npm install
+```
+installer nodemon pour pouvoir start le server  
+`npm install -g nodemon`
 
 installer le framework express 
 npm install express
@@ -27,10 +29,9 @@ npm install multer
 
 ## Crée un fichier .env
 
-DB_URL=.
-
-Port = .
-
-RAMDOM_TOKEN_SECRET =.
-
-Hash_Round= .
+```shell
+DB_URL=  
+PORT=  
+RAMDOM_TOKEN_SECRET=  
+HASH_ROUND=
+```
