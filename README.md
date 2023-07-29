@@ -13,7 +13,7 @@ npm install
 start le back 
 
 ```shell
-nodemon server
+npm start 
 ```
 
 ## Crée un fichier .env

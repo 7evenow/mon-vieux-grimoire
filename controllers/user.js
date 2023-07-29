@@ -1,12 +1,13 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt'); 
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 //www.npmjs.com/package/http-status
 https: exports.signup = (req, res, next) => {
   console.log(req);
   bcrypt
-    .hash(req.body.password, 10)
+    .hash(req.body.password, process.env.HASH_ROUND)
     .then((hash) => {
       const user = new User({
         email: req.body.email,
@@ -34,7 +35,7 @@ exports.login = (req, res, next) => {
                        userId: user._id,
                        token: jwt.sign(
                            { userId: user._id },
-                           'SECRET',
+                           process.env.RAMDOM_TOKEN_SECRET,
                            { expiresIn: '24h' }
                        )
                    });
