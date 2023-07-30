@@ -5,7 +5,7 @@ require('dotenv').config();
 
 //www.npmjs.com/package/http-status
 https: exports.signup = (req, res, next) => {
-  console.log(req);
+  console.log(req.body.email);
   bcrypt
     .hash(req.body.password, process.env.HASH_ROUND)
     .then((hash) => {
@@ -21,6 +21,7 @@ https: exports.signup = (req, res, next) => {
     .catch((err) => res.status(500).json({ message: err }));
 };
 exports.login = (req, res, next) => {
+    console.log(req.body.email)
     User.findOne({ email: req.body.email })
        .then(user => {
            if (!user) {

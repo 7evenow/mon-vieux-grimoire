@@ -86,7 +86,7 @@ exports.createRating = (req, res, next) => {
       book.ratings.push(rating);
       const totalRating = book.ratings.reduce((accumulator, currentObject) => accumulator + currentObject.grade, 0);
       const averageRating = totalRating / book.ratings.length
-      book.averageRating = averageRating;
+      book.averageRating = Floor(averageRating);
       return book.save();
     })
     .then(updatedBook => {
