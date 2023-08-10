@@ -3,22 +3,19 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
 
-
-//www.npmjs.com/package/http-status
-https: exports.signup = (req, res, next) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        email: req.body.email,
-        password: hash,
-      });
-      user
-        .save()
-        .then(() => res.status(201).json({ message: "Utilisateur crée !" }))
-        .catch((err) => res.status[500]);
-    })
-    .catch((err) => res.status[500]);
+exports.signup = (req, res, next) => {
+    bcrypt
+        .hash(req.body.password, Number(process.env.HASH_ROUND))
+        .then((hash) => {
+            const user = new User({
+                email: req.body.email,
+                password: hash,
+            });
+            user.save()
+                .then(() => res.status(201).json({ message: "Utilisateur crée !" }))
+                .catch((err) => res.status(500).json({ message: err }));
+            })
+        .catch((err) => res.status(500).json({ message: err.message }));
 };
 exports.login = (req, res, next) => {
     console.log(req.body.email)
@@ -32,7 +29,7 @@ exports.login = (req, res, next) => {
                    if (!valid) {
                        return res.status(401).json({ message: 'Paire login/mot de passe incorrecte' });
                    }
-                   res.status[200].json({
+                   return res.status(200)({
                        userId: user._id,
                        token: jwt.sign(
                            { userId: user._id },

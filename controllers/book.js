@@ -1,5 +1,5 @@
 const Book = require('../models/Book');
-const status = require('http-status');
+const httpStatus = require('http-status');
 
 exports.createBook = (req, res, next) => {
   console.log(req.body)
@@ -101,5 +101,5 @@ exports.createRating = (req, res, next) => {
         .json({ message: "Note ajoutée avec succès", book: updatedBookFinal });
       console.log(bookId);
     })
-    .catch(() => res.status[500]);
+    .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR));
 };
