@@ -1,4 +1,5 @@
 const Book = require('../models/Book');
+const status = require('http-status');
 
 exports.createBook = (req, res, next) => {
   console.log(req.body)
@@ -100,5 +101,5 @@ exports.createRating = (req, res, next) => {
         .json({ message: "Note ajoutée avec succès", book: updatedBookFinal });
       console.log(bookId);
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(() => res.status[500]);
 };
