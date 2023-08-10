@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
 require('dotenv').config();
 
 module.exports = (req, res, next) => {
@@ -10,6 +11,6 @@ module.exports = (req, res, next) => {
     next()
     }
     catch (error) {
-        res.status(401).json({ error })
+        res.status(httpStatus.UNAUTHORIZED).json({ error })
     }
 };

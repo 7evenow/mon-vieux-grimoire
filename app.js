@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
-
 require('dotenv').config();
 
 mongoose.connect(process.env.MONGO_URL,
