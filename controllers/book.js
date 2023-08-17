@@ -2,10 +2,7 @@ const Book = require('../models/Book');
 const httpStatus = require('http-status');
 
 exports.createBook = (req, res, next) => {
-  console.log(req.body)
   const bookObject = JSON.parse(req.body.book)
-  delete bookObject._id
-  delete bookObject._userId
   const totalRating = bookObject.ratings.reduce((accumulator, currentObject) => accumulator + currentObject.grade, 0);
   const averageRating = totalRating / bookObject.ratings.length
   const book = new Book({
@@ -15,11 +12,10 @@ exports.createBook = (req, res, next) => {
     title: bookObject.title,
     author: bookObject.author,
     year: bookObject.year,
-    averageRating: averageRating
-      
+    averageRating
   });
   book.save(book)
-      .then(() => res.status(httpStatus.CREATED).json({ mesagge: 'Objet enregistré !' }))
+      .then(() => res.status(httpStatus.CREATED).json({ message: 'Objet enregistré !' }))
       .catch(error => {
           res.status(httpStatus.BAD_REQUEST).json({ error });
       });
@@ -36,8 +32,6 @@ exports.modifyBook = (req, res, next) => {
        ...JSON.parse(req.body.book),
        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
    } : { ...req.body };
- 
-   delete bookObject._userId;
    Book.findOne({_id: req.params.id})
        .then((book) => {
            if (book.userId != req.auth.userId) {
@@ -79,27 +73,29 @@ exports.createRating = (req, res, next) => {
     grade: req.body.rating,
     userId : req.body.userId,
   }
+
   Book.findOne({ _id: bookId })
-    .then(book => {
+    .then(async book => {
       if (!book) {
         return res.status(httpStatus.NOT_FOUND).json({ message: 'Livre non trouvé' });
       }
       book.ratings.push(rating);
       const totalRating = book.ratings.reduce((accumulator, currentObject) => accumulator + currentObject.grade, 0);
       const averageRating = totalRating / book.ratings.length
-      book.averageRating = Floor(averageRating);
-      return book.save();
+      book.averageRating = Math.floor(averageRating);
+      try {
+        const updatedBook = await book.save()
+        return updatedBook
+      } catch (error) {
+        throw new Error(error)
+      }
     })
     .then(updatedBook => {
+      const editBook = updatedBook._doc
       const updatedBookFinal = {
-        ...book,
-        id: bookId,
+        ...editBook
       };
-      console.log(updatedBookFinal);
-      res
-        .status(httpStatus.OK)
-        .json({ message: "Note ajoutée avec succès", book: updatedBookFinal });
-      console.log(bookId);
+      return res.status(httpStatus.OK).json(updatedBookFinal);
     })
     .catch(() => res.status(httpStatus.INTERNAL_SERVER_ERROR));
 };
