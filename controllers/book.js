@@ -10,7 +10,7 @@ exports.createBook = async (req, res, next) => {
     
     const totalRating = bookObject.ratings.reduce((accumulator, currentObject) => accumulator + currentObject.grade, 0);
     const averageRating = totalRating / bookObject.ratings.length;
-    const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.replace(/\.[^/.]+$/, ".webp")}`;
+    const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path}`;
     const book = new Book({
       userId: req.auth.userId,
       title: bookObject.title,
@@ -30,7 +30,7 @@ exports.createBook = async (req, res, next) => {
     return res.status(httpStatus.CREATED).json({ message: 'Objet enregistré !' });
   } catch (error) {
     if (req.file) {
-      fs.unlinkSync(req.file.path.replace(/\.[^/.]+$/, ".webp"));
+      fs.unlinkSync(req.file.path);
     }
     res.status(httpStatus.BAD_REQUEST).json({ error: error.message });
   }
@@ -38,42 +38,38 @@ exports.createBook = async (req, res, next) => {
 
 exports.modifyBook = async (req, res, next) => {
   try {
-    const book = await Book.findOne({ _id: req.params.id });
-    if (!book) {
-      fs.unlinkSync(req.file.path.replace(/\.[^/.]+$/, ".webp"))
+    const bookFromDB = await Book.findOne({ _id: req.params.id });
+
+    if (!bookFromDB) {
+      fs.unlinkSync(req.file.path)
       return res.status(httpStatus.NOT_FOUND).json({ message: 'non trouvé' });
     }
-    if (book.userId != req.auth.userId) {
-      fs.unlinkSync(req.file.path.replace(/\.[^/.]+$/, ".webp"))
+    // TODO vérifier les types puis implémenter l'égalité stricte
+    if (bookFromDB.userId != req.auth.userId) {
+      fs.unlinkSync(req.file.path)
       return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Not authorized' });
     }
+
     const bookObject = req.file ? {
       ...JSON.parse(req.body.book),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      imageUrl: `${req.protocol}://${req.get('host')}/${req.file.path}`
     } : { ...req.body };
     delete bookObject.userId;
     delete bookObject._id;
-    
-    let updatedImageUrl = null;
-
-    if (req.file) {
-      const filename = book.imageUrl.split('/images/')[1];
-      fs.unlinkSync(`images/${filename}`); // Supprimer l'ancienne image
-      updatedImageUrl = bookObject.imageUrl.replace(/\.[^/.]+$/, ".webp");
-    }
 
     await Book.updateOne({ _id: req.params.id }, { ...bookObject });
-    
-    if (updatedImageUrl) {
-      book.imageUrl = updatedImageUrl;
-      await book.save();
-      return res.status(httpStatus.OK).json({ message: 'image modifié!' });
-    } else {
-      return res.status(httpStatus.OK).json({ message: 'Objet modifié!' });
+
+    if (req.file) {
+      // Suppression l'ancienne image
+      const oldFilename = bookFromDB.imageUrl.split("/images/")[1];
+      fs.unlinkSync(`images/${oldFilename}`); 
     }
+
+    return res.status(httpStatus.OK).json({ message: "mise à jour!" });
+
   } catch (error) {
     if (req.file) {
-      fs.unlinkSync(req.file.path.replace(/\.[^/.]+$/, ".webp"))
+      fs.unlinkSync(req.file.path)
     }
     return res.status(httpStatus.BAD_REQUEST).json({ error: error.message });
   }
@@ -85,12 +81,12 @@ exports.deleteBook = async (req, res, next) => {
     if (book.userId !== req.auth.userId) 
       return res.status(httpStatus.NOT_FOUND).json({ message: "Livre non trouvé ou non autorisé" });
     
-    const filename = book.imageUrl.split('/images/')[1].replace(/\.[^/.]+$/, ".webp");
-    console.log(filename);
-    fs.unlink(`images/${filename}`, async () => {
-        await Book.deleteOne({_id: req.params.id})
-        return res.status(httpStatus.OK).json({message: 'Objet supprimé !'}) 
-    });
+    const filename = book.imageUrl.split('/images/')[1];
+    await Book.deleteOne({_id: req.params.id})
+    await fs.unlink(`images/${filename}`)
+    // Promise.all
+    
+    return res.status(httpStatus.OK).json({message: 'Objet supprimé !'});
   }
   catch (error) {
     res.status(httpStatus.BAD_REQUEST).json({ error: error.message })
@@ -147,7 +143,6 @@ exports.createRating = async (req, res, next) => {
     const averageRating = totalRating / book.ratings.length
     book.averageRating = Math.floor(averageRating);
     const updatedBook = await book.save()
-    console.log(updatedBook._doc)
     const updatedBookFinal = {
       ...updatedBook._doc
     };

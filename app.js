@@ -5,7 +5,6 @@ const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet")
-const appMiddlewares = require('./middleware/multer-config')
 require('dotenv').config();
 
 
