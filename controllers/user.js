@@ -13,7 +13,7 @@ exports.signup = async (req, res, next) => {
         await user.save();
         res.status(httpStatus.CREATED).json({ message: "Utilisateur créé !" });
     } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
     }
 };
 exports.login = async (req, res, next) => {
@@ -35,6 +35,6 @@ exports.login = async (req, res, next) => {
             )
         });
     } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
     }
 }

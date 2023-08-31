@@ -1,6 +1,7 @@
 const Book = require('../models/Book');
 const httpStatus = require('http-status');
 const fs = require('fs');
+const fsPromise = require('fs/promises')
 
 exports.createBook = async (req, res, next) => {
   try {
@@ -44,8 +45,7 @@ exports.modifyBook = async (req, res, next) => {
       fs.unlinkSync(req.file.path)
       return res.status(httpStatus.NOT_FOUND).json({ message: 'non trouvé' });
     }
-    // TODO vérifier les types puis implémenter l'égalité stricte
-    if (bookFromDB.userId != req.auth.userId) {
+    if (bookFromDB.userId !== req.auth.userId) {
       fs.unlinkSync(req.file.path)
       return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Not authorized' });
     }
@@ -78,15 +78,18 @@ exports.modifyBook = async (req, res, next) => {
 exports.deleteBook = async (req, res, next) => {
   try {
     const book = await Book.findOne({ _id: req.params.id})
-    if (book.userId !== req.auth.userId) 
+    if (book.userId !== req.auth.userId){
       return res.status(httpStatus.NOT_FOUND).json({ message: "Livre non trouvé ou non autorisé" });
+    } 
     
     const filename = book.imageUrl.split('/images/')[1];
-    await Book.deleteOne({_id: req.params.id})
-    await fs.unlink(`images/${filename}`)
-    // Promise.all
-    
-    return res.status(httpStatus.OK).json({message: 'Objet supprimé !'});
+    try {
+        await fsPromise.unlink(`images/${filename}`);
+        await Book.deleteOne({ _id: req.params.id });
+        return res.status(httpStatus.OK).json({ message: 'Objet supprimé !' });
+      } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: error.message });
+      }
   }
   catch (error) {
     res.status(httpStatus.BAD_REQUEST).json({ error: error.message })
