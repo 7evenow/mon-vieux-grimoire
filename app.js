@@ -8,7 +8,7 @@ const helmet = require("helmet")
 require('dotenv').config();
 
 // Connexion à la base de données MongoDB
-mongoose.connect(process.env.MONGO_URL_DEPLOY,
+mongoose.connect(process.env.MONGO_URL_DEPLOYE,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
