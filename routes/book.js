@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
-const multer = require('../middleware/multer-config');
-const sharp = require('../middleware/sharp-config');
-const bookCtrl = require('../controllers/book');
+const auth = require('../middleware/auth');// Middleware d'authentification personnalisé
+const multer = require('../middleware/multer-config'); // Middleware pour la gestion des fichiers multipart/form-data
+const sharp = require('../middleware/sharp-config');// Middleware pour la manipulation d'images avec Sharp
+const bookCtrl = require('../controllers/book'); //Contrôleur pour les actions sur les livres
 
 router.get('/', bookCtrl.getAllBooks);
 router.get('/bestrating', bookCtrl.getBestRating);
