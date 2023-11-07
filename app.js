@@ -7,7 +7,7 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet")
 require('dotenv').config();
 
-// Connexion à la base de données MongoDB
+// Connexion à la base de données MongoDB test
 mongoose.connect(process.env.MONGO_URL_DEPLOYE,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
